@@ -780,7 +780,7 @@ _deque_rotate(dequeobject *deque, Py_ssize_t n)
     Py_ssize_t len=Py_SIZE(deque), halflen=len>>1;
     int rv = -1;
 
-    if (len <= 1)
+    if (len <= 1) // 只有一个元素，所以啥都不要干
         return 0;
     if (n > halflen || n < -halflen) {
         n %= len;
@@ -1125,20 +1125,20 @@ deque_insert(dequeobject *deque, PyObject *const *args, Py_ssize_t nargs)
         PyErr_SetString(PyExc_IndexError, "deque already at its maximum size");
         return NULL;
     }
-    if (index >= n)
+    if (index >= n) // 大于右侧，直接追加
         return deque_append(deque, value);
-    if (index <= -n || index == 0)
+    if (index <= -n || index == 0)  // 小于左侧，appendleft
         return deque_appendleft(deque, value);
-    if (_deque_rotate(deque, -index))
+    if (_deque_rotate(deque, -index))  // 把数据先往右边搬走
         return NULL;
-    if (index < 0)
+    if (index < 0) // 插入数据
         rv = deque_append(deque, value);
     else
         rv = deque_appendleft(deque, value);
     if (rv == NULL)
         return NULL;
     Py_DECREF(rv);
-    if (_deque_rotate(deque, index))
+    if (_deque_rotate(deque, index)) // 把数据往左搬走
         return NULL;
     Py_RETURN_NONE;
 }
